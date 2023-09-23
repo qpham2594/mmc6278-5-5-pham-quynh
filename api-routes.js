@@ -55,7 +55,7 @@ router
       } = req.body;
 
       if (!name || !image || !description || !price || !quantity) {
-        return res.status(400).json({ error: 'Missing information here.' });
+        return res.status(400).json({ error: 'Need name, image, description, price, and quantity.' });
       }
   
       // Insert the new item into the database
@@ -89,6 +89,30 @@ router
   //   "quantity": 3
   // }
 
+  .get(async (req, res) => {
+    try {
+      const inventory = await db.query(
+        `SELECT
+         id,
+         name,
+         image,
+         description,
+         price,
+         quantity
+        FROM inventory 
+        WHERE inventory.id=?`,
+        [inventory.id]
+
+      );
+      res.json(inventory);
+    } catch (error) {
+      console.error('Item not available', error);
+      res.status(404).json({ error: 'No item is found.' });
+    }
+  })
+
+
+
   // TODO: Create a PUT route that updates the inventory table based on the id
   // in the route parameter.
   // This route should accept price, quantity, name, description, and image
@@ -96,11 +120,46 @@ router
   // If no item is found, return a 404 status.
   // If an item is modified, return a 204 status code.
 
+  .put(async (req,res) => {
+    try {
+      const inventoryId = req.body
+      const [[iventoryItem]] = await db.query(
+        `SELECT
+        inventory.price,
+        inventory.name,
+        inventory.image,
+        inventory.description,
+        inventory.quantity AS inventoryQuantity
+        WHERE inventory.id=?`,
+        [req.params.inventoryId]
+      )
+    } catch (error) {
+      console.error('Error updating inventory', error);
+      res.status(404).json({error: 'Unable to update inventory.'});
+    }
+  }) 
+
   // TODO: Create a DELETE route that deletes an item from the inventory table
   // based on the id in the route parameter.
   // If no item is found, return a 404 status.
   // If an item is deleted, return a 204 status code.
 
+  
+  .delete(async (req, res) => {
+    const itemID = req.params.id;
+
+    const deleteResult = await db.query(
+      'DELETE FROM inventory WHERE id = ?',
+      [itemID]
+    );
+    if (deleteResult.affectedRows === 1) {
+      res.status(204).end(); 
+    } else {
+      res.status(404).send('Not able find item to delete.'); 
+    }
+  })
+
+////////////////////////////////////////////////////////////////////////
 router
   .route('/cart')
   .get(async (req, res) => {

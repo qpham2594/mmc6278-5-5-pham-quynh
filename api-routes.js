@@ -19,7 +19,6 @@ router
   // ]
 
 .get(async (req, res) => {
-    try {
       const [inventory] = await db.query(
         `SELECT
           id,
@@ -36,10 +35,6 @@ router
       } else {
         res.status(404).json({ error: 'Unable to get inventory data.' });
       }
-    } catch (error) {
-      console.error('Unable to load inventory', error);
-      res.status(500).json({ error: 'Internal Server Issue.' });
-    }
   })
   
   // TODO: Create a POST route that inserts inventory items
@@ -47,7 +42,6 @@ router
   // in the request body.
   
   .post(async (req, res) => {
-    try {
       const {
         name,
         image,
@@ -69,11 +63,7 @@ router
   
       // 204 status code and end the operation
       res.status(204).end();
-    } catch (error) {
-      console.error('Error inserting inventory item:', error);
-      res.status(500).json({ error: 'Internal Server Issue.'});
-    }
-  });
+  })
 
 router
   .route('/inventory/:id')
@@ -91,7 +81,6 @@ router
   // }
 
   .get(async (req, res) => {
-    try {
       const [inventory] = await db.query(
         `SELECT
          id,
@@ -110,10 +99,6 @@ router
       } else {
         res.status(404).json({ error: 'Unable to fetch specific item.' });
       }
-    } catch (error) {
-      res.status(500).json({ error: 'Internal Server Issue.' });
-    };
-
     })
 
   // TODO: Create a PUT route that updates the inventory table based on the id
@@ -124,7 +109,6 @@ router
   // If an item is modified, return a 204 status code.
 
   .put(async (req, res) => {
-    try {
       const {
         name,
         image,
@@ -156,10 +140,6 @@ router
       );
   
       res.status(204).end();
-    } catch (error) {
-      console.error('Error updating inventory', error);
-      res.status(500).json({ error: 'Internal Server Issue.' });
-    }
   })
 
   // TODO: Create a DELETE route that deletes an item from the inventory table
@@ -168,7 +148,6 @@ router
   // If an item is deleted, return a 204 status code.
 
   .delete(async (req, res) => {
-    try {
       const [{affectedRows}] = await db.query(
         'DELETE FROM inventory WHERE id = ?',
         [req.params.id]
@@ -178,11 +157,6 @@ router
       } else {
         res.status(404).send('Not able find item to delete.'); 
       }
-    } catch (error) {
-      console.error('Error deleting item', error);
-      res.status(500).json({ error: 'Internal Server Issue.' });
-    }
-  
   })
 
 /////////////////////////// CART BELOW /////////////////////////////////////////////
